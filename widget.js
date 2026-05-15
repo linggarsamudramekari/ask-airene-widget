@@ -36,8 +36,14 @@
 
     const iframe = document.createElement('iframe');
     iframe.id = 'qontak-widget-iframe';
-    // Append the widget_id so your frontend knows which configuration to load
-    iframe.src = `https://ai-gateway-fe.qontak.net/?widget_id=` + encodeURIComponent(widgetId);
+    
+    // Set the iframe src to the URL you specified, and pass along the widget configurations
+    let iframeUrl = `https://cdn.qontak.com/widget/widget.js?widget_id=` + encodeURIComponent(widgetId);
+    if (apiUrl) {
+        iframeUrl += `&api_url=` + encodeURIComponent(apiUrl);
+    }
+    iframe.src = iframeUrl;
+    
     document.body.appendChild(iframe);
 
     // 4. Toggle Logic
