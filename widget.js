@@ -1,16 +1,7 @@
-// widget.js (Hosted on your CDN)
+// widget.js 
 
 (function() {
-    // 1. Get the Auth Cookie from the parent site
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
-    }
-    const authToken = getCookie('chat_sso_token') || 'No token found';
-
-    // 2. Inject CSS for the floating button and the iframe panel
+    // 1. Inject CSS for the floating button and the iframe panel
     const style = document.createElement('style');
     style.innerHTML = `
         #my-floating-btn {
@@ -49,22 +40,22 @@
     `;
     document.head.appendChild(style);
 
-    // 3. Create the Floating Button
+    // 2. Create the Floating Button
     const button = document.createElement('button');
     button.id = 'my-floating-btn';
     button.innerHTML = '💬'; // Chat icon
     document.body.appendChild(button);
 
-    // 4. Create the Iframe Panel
+    // 3. Create the Iframe Panel
     const iframe = document.createElement('iframe');
     iframe.id = 'my-widget-iframe';
     
-    // Using srcdoc to generate the iframe content internally.
-    // If you are using an external hosted page, change this to: iframe.src = 'https://your-domain.com/iframe.html';
+    // Point directly to your frontend without any auth tokens in the URL
     iframe.src = `https://ai-gateway-fe.qontak.net/`;
+    
     document.body.appendChild(iframe);
 
-    // 5. Add Click Logic to Toggle the Panel Open/Closed
+    // 4. Add Click Logic to Toggle the Panel Open/Closed
     let isOpen = false;
     
     button.addEventListener('click', function() {
