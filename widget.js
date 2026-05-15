@@ -8,7 +8,7 @@
         if (parts.length === 2) return parts.pop().split(';').shift();
         return null;
     }
-    const authToken = getCookie('your_auth_cookie_name') || 'No token found';
+    const authToken = getCookie('chat_sso_token') || 'No token found';
 
     // 2. Inject CSS for the floating button and the iframe panel
     const style = document.createElement('style');
@@ -61,26 +61,7 @@
     
     // Using srcdoc to generate the iframe content internally.
     // If you are using an external hosted page, change this to: iframe.src = 'https://your-domain.com/iframe.html';
-    iframe.srcdoc = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #fafafa; }
-                .header { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
-                .auth-box { background: #eef; padding: 10px; border-radius: 8px; border: 1px solid #ccd; word-break: break-all; }
-            </style>
-        </head>
-        <body>
-            <div class="header">Widget Panel</div>
-            <p>Welcome to the inner iframe!</p>
-            <div class="auth-box">
-                <strong>Your Auth Token:</strong><br>
-                ${authToken}
-            </div>
-        </body>
-        </html>
-    `;
+    iframe.src = `https://ai-gateway-fe.qontak.net/`;
     document.body.appendChild(iframe);
 
     // 5. Add Click Logic to Toggle the Panel Open/Closed
