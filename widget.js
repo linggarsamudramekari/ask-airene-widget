@@ -1,91 +1,90 @@
-// widget.js (Ready for CDN)
+// widget.js (Upload this to your GitHub/CDN)
 
 (function() {
-    // 1. Get the Auth Cookie from the parent site
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
-    }
+    // 1. Get settings from the script tag that loaded this file
+    const currentScript = document.currentScript || (function() {
+        const scripts = document.getElementsByTagName('script');
+        return scripts[scripts.length - 1];
+    })();
     
-    const authToken = getCookie('chat_sso_token');
+    const widgetId = currentScript.getAttribute('data-widget-id') || 'default_id';
+    const apiUrl = currentScript.getAttribute('data-api-url') || '';
 
-    // --- DEBUGGING LOGS ---
-    console.log("========== WIDGET DEBUG ==========");
-    console.log("1. All readable parent cookies:", document.cookie);
-    console.log("2. Extracted 'chat_sso_token':", authToken);
-    console.log("==================================");
-
-    // Fallback if token is null
-    const finalToken = authToken || 'No_token_found';
-
-    // 2. Inject CSS for the floating button and the iframe panel
+    // 2. Inject CSS
     const style = document.createElement('style');
     style.innerHTML = `
-        #my-floating-btn {
-            position: fixed;
-            bottom: 20px; /* Change to 'top: 20px;' for top placement */
-            right: 20px;  /* Change to 'left: 20px;' for left placement */
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            z-index: 999999;
-            font-size: 24px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
+        #qontak-floating-btn {
+            position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
+            border-radius: 50%; background-color: #007bff; color: white; border: none;
+            cursor: pointer; z-index: 999999; font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.2s;
         }
-        #my-floating-btn:hover {
-            transform: scale(1.05);
-        }
-        #my-widget-iframe {
-            position: fixed;
-            bottom: 90px; /* Change to 'top: 90px;' if button is at the top */
-            right: 20px;  /* Change to 'left: 20px;' if button is on the left */
-            width: 350px;
-            height: 500px;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            z-index: 999998;
-            display: none;
-            background: white;
-            overflow: hidden;
+        #qontak-floating-btn:hover { transform: scale(1.05); }
+        #qontak-widget-iframe {
+            position: fixed; bottom: 90px; right: 20px; width: 350px; height: 500px;
+            border: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 999998; display: none; background: white; overflow: hidden;
         }
     `;
     document.head.appendChild(style);
 
-    // 3. Create the Floating Button
+    // 3. Create Button & Iframe
     const button = document.createElement('button');
-    button.id = 'my-floating-btn';
+    button.id = 'qontak-floating-btn';
     button.innerHTML = '💬'; 
     document.body.appendChild(button);
 
-    // 4. Create the Iframe Panel
     const iframe = document.createElement('iframe');
-    iframe.id = 'my-widget-iframe';
-    
-    // Passing the token into the URL so your app can use it
-    iframe.src = `https://cdn.qontak.com/widget/widget.js?sso_token=` + encodeURIComponent(finalToken);
-    
+    iframe.id = 'qontak-widget-iframe';
+    // Append the widget_id so your frontend knows which configuration to load
+    iframe.src = `https://ai-gateway-fe.qontak.net/?widget_id=` + encodeURIComponent(widgetId);
     document.body.appendChild(iframe);
 
-    // 5. Add Click Logic to Toggle the Panel Open/Closed
+    // 4. Toggle Logic
     let isOpen = false;
-    
     button.addEventListener('click', function() {
         isOpen = !isOpen;
-        if (isOpen) {
-            iframe.style.display = 'block';
-            button.innerHTML = '✖'; 
-        } else {
-            iframe.style.display = 'none';
-            button.innerHTML = '💬'; 
-        }
+        iframe.style.display = isOpen ? 'block' : 'none';
+        button.innerHTML = isOpen ? '✖' : '💬'; 
     });
+
+    // ==========================================
+    // 5. SECURE MESSAGE QUEUE SYSTEM
+    // ==========================================
+    let isIframeLoaded = false;
+    let messageQueue = [];
+
+    // When iframe finishes loading, process any messages waiting in the queue
+    iframe.onload = function() {
+        isIframeLoaded = true;
+        while (messageQueue.length > 0) {
+            const msg = messageQueue.shift();
+            iframe.contentWindow.postMessage(msg, '*'); // Note: For high security, change '*' to 'https://ai-gateway-fe.qontak.net'
+        }
+    };
+
+    // Helper to send or queue messages
+    function dispatchToIframe(actionName, payloadData) {
+        const message = { action: actionName, payload: payloadData };
+        if (isIframeLoaded && iframe.contentWindow) {
+            iframe.contentWindow.postMessage(message, '*');
+        } else {
+            messageQueue.push(message); // Save for later if iframe is still loading
+        }
+    }
+
+    // ==========================================
+    // 6. EXPOSE THE GLOBAL API
+    // ==========================================
+    window.QontakChat = {
+        setContext: function(contextData) {
+            console.log("[Widget JS SDK] Parent called setContext:", contextData);
+            dispatchToIframe('QONTAK_SET_CONTEXT', contextData);
+        },
+        identify: function(userData) {
+            console.log("[Widget JS SDK] Parent called identify:", userData);
+            dispatchToIframe('QONTAK_IDENTIFY', userData);
+        }
+    };
 
 })();
