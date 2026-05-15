@@ -7,8 +7,8 @@
         return scripts[scripts.length - 1];
     })();
     
-    const widgetId = currentScript.getAttribute('data-widget-id') || 'd4298fb1-4bd8-499e-94c8-28fd3decd634';
-    const apiUrl = currentScript.getAttribute('data-api-url') || 'https://staging-chat.qontak.net';
+    const widgetId = currentScript.getAttribute('data-widget-id') || 'default_id';
+    const apiUrl = currentScript.getAttribute('data-api-url') || '';
 
     // 2. Inject CSS
     const style = document.createElement('style');
@@ -38,7 +38,7 @@
     iframe.id = 'qontak-widget-iframe';
     
     // Set the iframe src to the URL you specified, and pass along the widget configurations
-    let iframeUrl = `https://cdn.qontak.com/widget/widget.js?widget_id=` + encodeURIComponent(widgetId);
+    let iframeUrl = `https://ai-gateway-fe.qontak.net/?widget_id=` + encodeURIComponent(widgetId);
     if (apiUrl) {
         iframeUrl += `&api_url=` + encodeURIComponent(apiUrl);
     }
@@ -86,10 +86,6 @@
         setContext: function(contextData) {
             console.log("[Widget JS SDK] Parent called setContext:", contextData);
             dispatchToIframe('QONTAK_SET_CONTEXT', contextData);
-        },
-        identify: function(userData) {
-            console.log("[Widget JS SDK] Parent called identify:", userData);
-            dispatchToIframe('QONTAK_IDENTIFY', userData);
         }
     };
 
