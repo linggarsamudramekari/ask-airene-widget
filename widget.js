@@ -70,7 +70,7 @@
     iframe.id = 'my-widget-iframe';
     
     // Passing the token into the URL so your app can use it
-    iframe.src = `https://ai-gateway-fe.qontak.net/?sso_token=` + encodeURIComponent(finalToken);
+    iframe.src = `https://cdn.qontak.com/widget/widget.js?sso_token=` + encodeURIComponent(finalToken);
     
     document.body.appendChild(iframe);
 
