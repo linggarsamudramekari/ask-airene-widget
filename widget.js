@@ -1,4 +1,4 @@
-// widget.js 
+// widget.js (Ready for CDN)
 
 (function() {
     // 1. Get the Auth Cookie from the parent site
@@ -25,8 +25,8 @@
     style.innerHTML = `
         #my-floating-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 20px; /* Change to 'top: 20px;' for top placement */
+            right: 20px;  /* Change to 'left: 20px;' for left placement */
             width: 60px;
             height: 60px;
             border-radius: 50%;
@@ -44,8 +44,8 @@
         }
         #my-widget-iframe {
             position: fixed;
-            bottom: 90px;
-            right: 20px;
+            bottom: 90px; /* Change to 'top: 90px;' if button is at the top */
+            right: 20px;  /* Change to 'left: 20px;' if button is on the left */
             width: 350px;
             height: 500px;
             border: none;
