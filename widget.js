@@ -7,8 +7,8 @@
         return scripts[scripts.length - 1];
     })();
     
-    const widgetId = currentScript.getAttribute('data-widget-id') || 'default_id';
-    const apiUrl = currentScript.getAttribute('data-api-url') || '';
+    const widgetId = currentScript.getAttribute('data-widget-id') || 'd4298fb1-4bd8-499e-94c8-28fd3decd634';
+    const apiUrl = currentScript.getAttribute('data-api-url') || 'https://staging-chat.qontak.net';
 
     // 2. Inject CSS
     const style = document.createElement('style');
