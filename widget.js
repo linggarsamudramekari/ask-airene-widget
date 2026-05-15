@@ -9,6 +9,11 @@
     
     const widgetId = currentScript.getAttribute('data-widget-id') || 'default_id';
     const apiUrl = currentScript.getAttribute('data-api-url') || '';
+    
+    // Default Identify attributes (Gets from script tag, or uses default values)
+    const defaultUserId = currentScript.getAttribute('data-visitor-user-id') || 'user_123';
+    const defaultUserName = currentScript.getAttribute('data-visitor-name') || 'Jane Doe';
+    const defaultUserEmail = currentScript.getAttribute('data-visitor-email') || 'jane@example.com';
 
     // 2. Inject CSS
     const style = document.createElement('style');
@@ -37,11 +42,12 @@
     const iframe = document.createElement('iframe');
     iframe.id = 'qontak-widget-iframe';
     
-    // Set the iframe src to the URL you specified, and pass along the widget configurations
+    // Set the iframe src to the URL you specified, passing ONLY the widget configurations
     let iframeUrl = `https://ai-gateway-fe.qontak.net/?widget_id=` + encodeURIComponent(widgetId);
     if (apiUrl) {
         iframeUrl += `&api_url=` + encodeURIComponent(apiUrl);
     }
+    
     iframe.src = iframeUrl;
     
     document.body.appendChild(iframe);
@@ -69,13 +75,12 @@
         }
     };
 
-    // Helper to send or queue messages
-    function dispatchToIframe(actionName, payloadData) {
-        const message = { action: actionName, payload: payloadData };
+    // Helper to send or queue messages directly
+    function dispatchToIframe(payloadData) {
         if (isIframeLoaded && iframe.contentWindow) {
-            iframe.contentWindow.postMessage(message, '*');
+            iframe.contentWindow.postMessage(payloadData, '*');
         } else {
-            messageQueue.push(message); // Save for later if iframe is still loading
+            messageQueue.push(payloadData); // Save for later if iframe is still loading
         }
     }
 
@@ -85,7 +90,22 @@
     window.QontakChat = {
         setContext: function(contextData) {
             console.log("[Widget JS SDK] Parent called setContext:", contextData);
-            dispatchToIframe('QONTAK_SET_CONTEXT', contextData);
+            // Send the raw object exactly as the client passed it
+            dispatchToIframe(contextData);
+        },
+        identify: function(userData) {
+            const data = userData || {};
+            
+            // Merge passed data with attributes/defaults
+            const finalUserData = {
+                visitor_user_id: data.visitor_user_id || defaultUserId,
+                visitor_name: data.visitor_name || defaultUserName,
+                visitor_email: data.visitor_email || defaultUserEmail
+            };
+            
+            console.log("[Widget JS SDK] Parent called identify:", finalUserData);
+            // Send the raw object directly
+            dispatchToIframe(finalUserData);
         }
     };
 
